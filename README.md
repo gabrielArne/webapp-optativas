@@ -18,6 +18,18 @@ La aplicacion queda disponible en:
 http://127.0.0.1:8000
 ```
 
+## Deploy en Render
+
+Crear un servicio de tipo `Web Service` desde la raiz del repositorio.
+
+```text
+Root Directory: dejar vacio
+Build Command: pip install -r requirements.txt
+Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+El archivo `runtime.txt` fija Python `3.12.8` para evitar incompatibilidades con runtimes mas nuevos.
+
 ## Configuracion
 
 La base de datos se configura solo con `DATABASE_URL`.
@@ -33,4 +45,3 @@ PostgreSQL:
 ```env
 DATABASE_URL=postgresql+psycopg2://usuario:password@host:5432/base
 ```
-
