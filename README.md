@@ -28,7 +28,7 @@ Build Command: pip install -r requirements.txt
 Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
 
-El archivo `runtime.txt` fija Python `3.12.8` para evitar incompatibilidades con runtimes mas nuevos.
+El archivo `.python-version` fija Python `3.12.8` para evitar incompatibilidades con runtimes mas nuevos.
 
 ## Configuracion
 
