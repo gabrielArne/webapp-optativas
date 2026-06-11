@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h3 mb-3">Notificaciones</h1>
+<div class="card">
+  <div class="card-body">
+    <div class="list-group">
+      {% for notification in notifications %}
+        <div class="list-group-item d-flex justify-content-between align-items-start {% if not notification.leida %}fw-semibold{% endif %}">
+          <div>
+            <p class="mb-1">{{ notification.mensaje }}</p>
+            <span class="small text-muted">{{ notification.fecha.strftime("%Y-%m-%d %H:%M") }}</span>
+          </div>
+          {% if not notification.leida %}
+            <form method="post" action="/notificaciones/{{ notification.id }}/leer">
+              <button class="btn btn-sm btn-outline-primary" type="submit">Marcar leida</button>
+            </form>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="list-group-item text-muted">No hay notificaciones.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3">Dashboard alumno</h1>
+  <a class="btn btn-primary" href="/solicitudes/nueva">Nueva solicitud</a>
+</div>
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h5">Mis solicitudes</h2>
+        {% include "solicitudes/_table.html" %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h5">Propuestas disponibles</h2>
+        <ul class="list-group list-group-flush">
+          {% for propuesta in propuestas %}
+            <li class="list-group-item px-0"><a href="/propuestas/{{ propuesta.id }}">{{ propuesta.titulo }}</a></li>
+          {% else %}
+            <li class="list-group-item px-0">No hay propuestas abiertas.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h5">Banco de materias</h2>
+        <ul class="list-group list-group-flush">
+          {% for materia in materias %}
+            <li class="list-group-item px-0">{{ materia.nombre }}</li>
+          {% else %}
+            <li class="list-group-item px-0">No hay materias aprobadas.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% include "dashboard/_notifications.html" %}
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h3 mb-3">Gestion de usuarios</h1>
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h5">Crear usuario</h2>
+        <form method="post" action="/usuarios">
+          <div class="mb-2"><input class="form-control" name="nombre" placeholder="Nombre" required></div>
+          <div class="mb-2"><input class="form-control" name="apellido" placeholder="Apellido" required></div>
+          <div class="mb-2"><input class="form-control" type="email" name="email" placeholder="Email" required></div>
+          <div class="mb-2"><input class="form-control" type="password" name="password" placeholder="Password" required></div>
+          <div class="mb-3">
+            <select class="form-select" name="rol">
+              {% for role in roles %}<option value="{{ role }}">{{ role }}</option>{% endfor %}
+            </select>
+          </div>
+          <button class="btn btn-primary" type="submit">Crear</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h5">Usuarios</h2>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Activo</th><th></th></tr></thead>
+            <tbody>
+              {% for user in users %}
+                <tr>
+                  <form method="post" action="/usuarios/{{ user.id }}/actualizar">
+                    <td>{{ user.email }}</td>
+                    <td>
+                      <div class="input-group input-group-sm">
+                        <input class="form-control" name="apellido" value="{{ user.apellido }}">
+                        <input class="form-control" name="nombre" value="{{ user.nombre }}">
+                      </div>
+                    </td>
+                    <td>
+                      <select class="form-select form-select-sm" name="rol">
+                        {% for role in roles %}
+                          <option value="{{ role }}" {% if role == user.rol %}selected{% endif %}>{{ role }}</option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" name="activo" value="true" {% if user.activo %}checked{% endif %}></td>
+                    <td><button class="btn btn-sm btn-outline-primary" type="submit">Guardar</button></td>
+                  </form>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% include "_pagination.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3">{{ propuesta.titulo }}</h1>
+    <p class="text-muted mb-0">{{ propuesta.estado }} · {{ propuesta.docente.apellido }}, {{ propuesta.docente.nombre }}</p>
+  </div>
+  {% if current_user.rol == "Alumno" and propuesta.estado == "ABIERTA" %}
+    <form method="post" action="/propuestas/{{ propuesta.id }}/postular">
+      <button class="btn btn-primary" type="submit">Postularme</button>
+    </form>
+  {% endif %}
+  {% if current_user.rol in ["Docente", "Administrador"] and propuesta.estado == "ABIERTA" %}
+    <form method="post" action="/propuestas/{{ propuesta.id }}/finalizar">
+      <button class="btn btn-outline-secondary" type="submit">Finalizar postulacion</button>
+    </form>
+  {% endif %}
+</div>
+<div class="card mb-3">
+  <div class="card-body">
+    <p class="mb-0">{{ propuesta.descripcion }}</p>
+  </div>
+</div>
+{% if current_user.rol in ["Docente", "Administrador"] %}
+  <div class="card">
+    <div class="card-body">
+      <h2 class="h5">Alumnos postulados</h2>
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead><tr><th>Alumno</th><th>Email</th><th>Estado</th><th></th></tr></thead>
+          <tbody>
+            {% for postulacion in propuesta.postulaciones %}
+              <tr>
+                <td>{{ postulacion.alumno.apellido }}, {{ postulacion.alumno.nombre }}</td>
+                <td>{{ postulacion.alumno.email }}</td>
+                <td>{{ postulacion.estado }}</td>
+                <td>
+                  <form class="d-flex gap-2" method="post" action="/propuestas/postulaciones/{{ postulacion.id }}/estado">
+                    <select class="form-select form-select-sm" name="estado">
+                      {% for estado in estados_postulacion %}
+                        <option value="{{ estado }}" {% if estado == postulacion.estado %}selected{% endif %}>{{ estado }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="btn btn-sm btn-outline-primary" type="submit">Guardar</button>
+                  </form>
+                </td>
+              </tr>
+            {% else %}
+              <tr><td colspan="4" class="text-muted">Sin postulaciones.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,30 @@
+body {
+  background: #f6f7f9;
+}
+
+.navbar-brand {
+  font-weight: 700;
+}
+
+.page-shell {
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
+}
+
+.card {
+  border-radius: 8px;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+.badge-state {
+  letter-spacing: 0;
+}
+
+textarea {
+  min-height: 120px;
+}
+

@@ -1,0 +1,29 @@
+<div class="table-responsive">
+  <table class="table table-hover table-sm">
+    <thead>
+      <tr>
+        <th>Titulo</th>
+        <th>Tipo</th>
+        <th>Estado</th>
+        <th>Alumno</th>
+        <th>Docente</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for solicitud in solicitudes %}
+        <tr>
+          <td>{{ solicitud.titulo }}</td>
+          <td>{{ solicitud.tipo }}</td>
+          <td><span class="badge text-bg-secondary badge-state">{{ solicitud.estado }}</span></td>
+          <td>{{ solicitud.alumno.apellido }}, {{ solicitud.alumno.nombre }}</td>
+          <td>{{ solicitud.docente.apellido if solicitud.docente else "Sin asignar" }}</td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="/solicitudes/{{ solicitud.id }}">Ver</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="text-muted">No hay solicitudes para mostrar.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+

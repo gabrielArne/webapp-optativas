@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h3 mb-3">Nueva propuesta</h1>
+<div class="card">
+  <div class="card-body">
+    <form method="post" action="/propuestas">
+      <div class="mb-3">
+        <label class="form-label">Titulo</label>
+        <input class="form-control" name="titulo" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Descripcion</label>
+        <textarea class="form-control" name="descripcion" required></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit">Crear propuesta</button>
+      <a class="btn btn-link" href="/propuestas">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

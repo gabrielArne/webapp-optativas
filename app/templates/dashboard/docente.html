@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3">Dashboard docente</h1>
+  <a class="btn btn-primary" href="/propuestas/nueva">Nueva propuesta</a>
+</div>
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h5">Solicitudes pendientes o en revision</h2>
+        {% set solicitudes = pending %}
+        {% include "solicitudes/_table.html" %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h5">Propuestas creadas</h2>
+        <ul class="list-group list-group-flush">
+          {% for propuesta in propuestas %}
+            <li class="list-group-item px-0"><a href="/propuestas/{{ propuesta.id }}">{{ propuesta.titulo }}</a></li>
+          {% else %}
+            <li class="list-group-item px-0">Sin propuestas.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% include "dashboard/_notifications.html" %}
+  </div>
+</div>
+{% endblock %}
+

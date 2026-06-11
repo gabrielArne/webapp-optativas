@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3">Solicitudes</h1>
+  {% if current_user.rol == "Alumno" %}
+    <a class="btn btn-primary" href="/solicitudes/nueva">Nueva solicitud</a>
+  {% endif %}
+</div>
+{% include "solicitudes/_table.html" %}
+{% include "_pagination.html" %}
+{% endblock %}

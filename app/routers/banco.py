@@ -1,0 +1,84 @@
+from fastapi import APIRouter, Depends, Form, Request
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
+
+from app.auth.dependencies import flash, require_roles, require_user
+from app.database.session import get_db
+from app.models.banco import BancoMateria
+from app.models.enums import EstadoBancoMateria, RolUsuario
+from app.models.user import Usuario
+from app.services.notifications import notify
+from app.utils.templates import page_context, templates
+
+router = APIRouter(prefix="/banco", tags=["banco"])
+
+
+@router.get("")
+def list_banco(
+    request: Request,
+    current_user: Usuario = Depends(require_user),
+    db: Session = Depends(get_db),
+):
+    query = db.query(BancoMateria)
+    if current_user.rol == RolUsuario.ALUMNO.value:
+        query = query.filter(BancoMateria.estado == EstadoBancoMateria.APROBADA.value)
+    materias = query.order_by(BancoMateria.nombre).all()
+    return templates.TemplateResponse(
+        "banco/list.html",
+        page_context(
+            request,
+            current_user=current_user,
+            materias=materias,
+            estados=[estado.value for estado in EstadoBancoMateria],
+        ),
+    )
+
+
+@router.get("/nueva")
+def new_materia_form(
+    request: Request,
+    current_user: Usuario = Depends(require_roles(RolUsuario.DOCENTE.value, RolUsuario.ADMIN.value)),
+):
+    return templates.TemplateResponse("banco/form.html", page_context(request, current_user=current_user))
+
+
+@router.post("")
+def create_materia(
+    request: Request,
+    nombre: str = Form(...),
+    descripcion: str = Form(...),
+    current_user: Usuario = Depends(require_roles(RolUsuario.DOCENTE.value, RolUsuario.ADMIN.value)),
+    db: Session = Depends(get_db),
+):
+    estado = EstadoBancoMateria.APROBADA.value if current_user.rol == RolUsuario.ADMIN.value else EstadoBancoMateria.PENDIENTE.value
+    db.add(
+        BancoMateria(
+            nombre=nombre.strip(),
+            descripcion=descripcion.strip(),
+            estado=estado,
+            docente_id=current_user.id,
+        )
+    )
+    db.commit()
+    flash(request, "Materia cargada en el banco.")
+    return RedirectResponse("/banco", status_code=303)
+
+
+@router.post("/{materia_id}/estado")
+def update_materia_estado(
+    request: Request,
+    materia_id: int,
+    estado: str = Form(...),
+    current_user: Usuario = Depends(require_roles(RolUsuario.DOCENTE.value, RolUsuario.ADMIN.value)),
+    db: Session = Depends(get_db),
+):
+    materia = db.get(BancoMateria, materia_id)
+    if not materia:
+        flash(request, "Materia inexistente.", "danger")
+        return RedirectResponse("/banco", status_code=303)
+    materia.estado = estado
+    notify(db, materia.docente_id, f"La materia '{materia.nombre}' cambio a {estado}.")
+    db.commit()
+    flash(request, "Estado de materia actualizado.")
+    return RedirectResponse("/banco", status_code=303)
+

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3">Propuestas</h1>
+  {% if current_user.rol in ["Docente", "Administrador"] %}
+    <a class="btn btn-primary" href="/propuestas/nueva">Nueva propuesta</a>
+  {% endif %}
+</div>
+<div class="row g-3">
+  {% for propuesta in propuestas %}
+    <div class="col-md-6 col-xl-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5">{{ propuesta.titulo }}</h2>
+          <p>{{ propuesta.descripcion }}</p>
+          <p class="mb-2"><span class="badge text-bg-secondary">{{ propuesta.estado }}</span></p>
+          <a class="btn btn-sm btn-outline-primary" href="/propuestas/{{ propuesta.id }}">Ver detalle</a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="col"><p class="text-muted">No hay propuestas para mostrar.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}
+

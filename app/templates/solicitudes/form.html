@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h3 mb-3">Nueva solicitud</h1>
+<div class="card">
+  <div class="card-body">
+    <form method="post" action="/solicitudes" enctype="multipart/form-data">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" name="tipo" required>
+            {% for tipo in tipos %}
+              <option value="{{ tipo }}">{{ tipo }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-8 mb-3">
+          <label class="form-label">Docente</label>
+          <select class="form-select" name="docente_id">
+            <option value="">Sin asignar</option>
+            {% for docente in docentes %}
+              <option value="{{ docente.id }}">{{ docente.apellido }}, {{ docente.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Titulo</label>
+        <input class="form-control" name="titulo" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Descripcion</label>
+        <textarea class="form-control" name="descripcion" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Documentacion adjunta</label>
+        <input class="form-control" type="file" name="files" multiple>
+      </div>
+      <button class="btn btn-primary" type="submit">Enviar solicitud</button>
+      <a class="btn btn-link" href="/solicitudes">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

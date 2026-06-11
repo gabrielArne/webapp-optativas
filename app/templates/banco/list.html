@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3">Banco de materias</h1>
+  {% if current_user.rol in ["Docente", "Administrador"] %}
+    <a class="btn btn-primary" href="/banco/nueva">Nueva materia</a>
+  {% endif %}
+</div>
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th>Nombre</th><th>Descripcion</th><th>Docente</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+          {% for materia in materias %}
+            <tr>
+              <td>{{ materia.nombre }}</td>
+              <td>{{ materia.descripcion }}</td>
+              <td>{{ materia.docente.apellido if materia.docente else "-" }}</td>
+              <td><span class="badge text-bg-secondary">{{ materia.estado }}</span></td>
+              <td>
+                {% if current_user.rol in ["Docente", "Administrador"] %}
+                  <form class="d-flex gap-2" method="post" action="/banco/{{ materia.id }}/estado">
+                    <select class="form-select form-select-sm" name="estado">
+                      {% for estado in estados %}
+                        <option value="{{ estado }}" {% if estado == materia.estado %}selected{% endif %}>{{ estado }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="btn btn-sm btn-outline-primary" type="submit">Guardar</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="text-muted">No hay materias para mostrar.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

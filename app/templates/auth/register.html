@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="h4 mb-3">Registro de alumno</h1>
+        <form method="post" action="/registro">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nombre</label>
+              <input class="form-control" name="nombre" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Apellido</label>
+              <input class="form-control" name="apellido" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" type="email" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input class="form-control" type="password" name="password" minlength="6" required>
+          </div>
+          <button class="btn btn-primary" type="submit">Crear cuenta</button>
+          <a class="btn btn-link" href="/login">Volver</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
