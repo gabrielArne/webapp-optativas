@@ -7,7 +7,7 @@
   </div>
   {% if current_user.rol in ["Docente", "Administrador"] and propuesta.estado == "ABIERTA" %}
     <form method="post" action="/propuestas/{{ propuesta.id }}/finalizar">
-      <button class="btn btn-outline-secondary" type="submit">Finalizar postulacion</button>
+      <button class="btn btn-outline-secondary" type="submit">Finalizar proyecto</button>
     </form>
   {% endif %}
 </div>

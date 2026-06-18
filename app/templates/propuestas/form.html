@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="h3 mb-3">Nueva propuesta</h1>
+<h1 class="h3 mb-3">Nuevo proyecto</h1>
 <div class="card">
   <div class="card-body">
     <form method="post" action="/propuestas" enctype="multipart/form-data">
@@ -16,7 +16,7 @@
         <label class="form-label">Documentacion complementaria opcional</label>
         <input class="form-control" type="file" name="documentacion">
       </div>
-      <button class="btn btn-primary" type="submit">Crear propuesta</button>
+      <button class="btn btn-primary" type="submit">Crear proyecto</button>
       <a class="btn btn-link" href="/propuestas">Cancelar</a>
     </form>
   </div>
