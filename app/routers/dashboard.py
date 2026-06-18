@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import require_user
@@ -20,6 +21,9 @@ def dashboard(
     current_user: Usuario = Depends(require_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.rol == RolUsuario.ADMIN.value:
+        return RedirectResponse("/usuarios", status_code=303)
+
     notifications = (
         db.query(Notificacion)
         .filter(Notificacion.usuario_id == current_user.id)
@@ -27,13 +31,6 @@ def dashboard(
         .limit(5)
         .all()
     )
-
-    if current_user.rol == RolUsuario.ADMIN.value:
-        users = db.query(Usuario).order_by(Usuario.rol, Usuario.apellido).all()
-        return templates.TemplateResponse(
-            "dashboard/admin.html",
-            page_context(request, current_user=current_user, users=users, notifications=notifications),
-        )
 
     if current_user.rol == RolUsuario.DOCENTE.value:
         pending = (
@@ -85,4 +82,3 @@ def dashboard(
             notifications=notifications,
         ),
     )
-

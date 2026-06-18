@@ -73,6 +73,9 @@ def list_solicitudes(
     current_user: Usuario = Depends(require_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.rol == RolUsuario.ADMIN.value:
+        return RedirectResponse("/usuarios", status_code=303)
+
     per_page = 10
     page = max(page, 1)
     query = db.query(Solicitud)
@@ -204,6 +207,9 @@ def solicitud_detail(
     current_user: Usuario = Depends(require_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.rol == RolUsuario.ADMIN.value:
+        return RedirectResponse("/usuarios", status_code=303)
+
     solicitud = db.get(Solicitud, solicitud_id)
     if not solicitud or not can_view(current_user, solicitud):
         flash(request, "No tenes acceso a esa solicitud.", "danger")

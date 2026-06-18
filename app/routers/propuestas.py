@@ -36,6 +36,9 @@ def list_propuestas(
     current_user: Usuario = Depends(require_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.rol == RolUsuario.ADMIN.value:
+        return RedirectResponse("/usuarios", status_code=303)
+
     query = db.query(Propuesta)
     if current_user.rol == RolUsuario.ALUMNO.value:
         query = query.filter(Propuesta.estado == EstadoPropuesta.ABIERTA.value)
@@ -53,6 +56,9 @@ def new_propuesta_form(
     request: Request,
     current_user: Usuario = Depends(require_roles(RolUsuario.DOCENTE.value, RolUsuario.ADMIN.value)),
 ):
+    if current_user.rol == RolUsuario.ADMIN.value:
+        return RedirectResponse("/usuarios", status_code=303)
+
     return templates.TemplateResponse("propuestas/form.html", page_context(request, current_user=current_user))
 
 
@@ -84,6 +90,9 @@ def propuesta_detail(
     current_user: Usuario = Depends(require_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.rol == RolUsuario.ADMIN.value:
+        return RedirectResponse("/usuarios", status_code=303)
+
     propuesta = db.get(Propuesta, propuesta_id)
     if not propuesta:
         flash(request, "Propuesta inexistente.", "danger")

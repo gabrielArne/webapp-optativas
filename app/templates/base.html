@@ -10,20 +10,21 @@
   <body>
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/">Optativas UNSAM</a>
+        <a class="navbar-brand" href="{% if current_user and current_user.rol == 'Administrador' %}/usuarios{% else %}/{% endif %}">Optativas UNSAM</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="nav">
           {% if current_user %}
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
-              <li class="nav-item"><a class="nav-link" href="/solicitudes">Solicitudes</a></li>
-              <li class="nav-item"><a class="nav-link" href="/propuestas">Propuestas</a></li>
-              <li class="nav-item"><a class="nav-link" href="/banco">Banco de materias</a></li>
-              <li class="nav-item"><a class="nav-link" href="/notificaciones">Notificaciones</a></li>
               {% if current_user.rol == "Administrador" %}
                 <li class="nav-item"><a class="nav-link" href="/usuarios">Usuarios</a></li>
+              {% else %}
+                <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/solicitudes">Solicitudes</a></li>
+                <li class="nav-item"><a class="nav-link" href="/propuestas">Propuestas</a></li>
+                <li class="nav-item"><a class="nav-link" href="/banco">Banco de materias</a></li>
+                <li class="nav-item"><a class="nav-link" href="/notificaciones">Notificaciones</a></li>
               {% endif %}
             </ul>
             <div class="d-flex align-items-center gap-3 text-white">

@@ -19,6 +19,9 @@ def list_banco(
     current_user: Usuario = Depends(require_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.rol == RolUsuario.ADMIN.value:
+        return RedirectResponse("/usuarios", status_code=303)
+
     query = db.query(BancoMateria)
     if current_user.rol == RolUsuario.ALUMNO.value:
         query = query.filter(BancoMateria.estado == EstadoBancoMateria.APROBADA.value)
@@ -39,6 +42,9 @@ def new_materia_form(
     request: Request,
     current_user: Usuario = Depends(require_roles(RolUsuario.DOCENTE.value, RolUsuario.ADMIN.value)),
 ):
+    if current_user.rol == RolUsuario.ADMIN.value:
+        return RedirectResponse("/usuarios", status_code=303)
+
     return templates.TemplateResponse("banco/form.html", page_context(request, current_user=current_user))
 
 
