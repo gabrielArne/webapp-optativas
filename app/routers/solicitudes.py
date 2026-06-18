@@ -256,12 +256,17 @@ def update_estado(
         return RedirectResponse("/solicitudes", status_code=303)
     if current_user.rol == RolUsuario.DOCENTE.value and solicitud.docente_id is None:
         solicitud.docente_id = current_user.id
+    estado_anterior = solicitud.estado
+    comentario_limpio = comentario.strip()
     add_history(db, solicitud, estado, current_user.id)
-    if comentario.strip():
-        db.add(Feedback(solicitud_id=solicitud.id, usuario_id=current_user.id, comentario=comentario.strip()))
-    notify(db, solicitud.alumno_id, f"Tu solicitud '{solicitud.titulo}' cambio a {estado}.")
+    if comentario_limpio:
+        db.add(Feedback(solicitud_id=solicitud.id, usuario_id=current_user.id, comentario=comentario_limpio))
+    if estado_anterior != estado:
+        notify(db, solicitud.alumno_id, f"Tu solicitud '{solicitud.titulo}' cambio a {estado}.")
+    elif comentario_limpio:
+        notify(db, solicitud.alumno_id, f"Nuevo feedback en tu solicitud: {solicitud.titulo}")
     db.commit()
-    flash(request, "Estado actualizado.")
+    flash(request, "Avance registrado.")
     return RedirectResponse(f"/solicitudes/{solicitud.id}", status_code=303)
 
 

@@ -3,7 +3,7 @@
 <div class="d-flex justify-content-between align-items-start mb-3">
   <div>
     <h1 class="h3">{{ solicitud.titulo }}</h1>
-    <p class="text-muted mb-0">{{ solicitud.tipo }} · {{ solicitud.estado }}</p>
+    <p class="text-muted mb-0">{{ solicitud.tipo }} &middot; {{ solicitud.estado }}</p>
   </div>
   {% if current_user.rol == "Alumno" and solicitud.alumno_id == current_user.id and solicitud.estado not in ["ANULADA", "CERRADA"] %}
     <form method="post" action="/solicitudes/{{ solicitud.id }}/anular">
@@ -38,48 +38,50 @@
     <div class="card mb-3">
       <div class="card-body">
         <h2 class="h5">Feedback y avances</h2>
-        <div class="list-group mb-3">
+        <div class="feedback-thread mb-3">
           {% for feedback in solicitud.feedbacks %}
-            <div class="list-group-item">
-              <strong>{{ feedback.usuario.nombre }} {{ feedback.usuario.apellido }}</strong>
-              <span class="text-muted small">{{ feedback.fecha.strftime("%Y-%m-%d %H:%M") }}</span>
-              <p class="mb-0">{{ feedback.comentario }}</p>
+            <div class="feedback-message {% if feedback.usuario_id == current_user.id %}feedback-message-own{% else %}feedback-message-other{% endif %}">
+              <div class="feedback-bubble">
+                <div class="feedback-meta">
+                  <strong>{{ feedback.usuario.nombre }} {{ feedback.usuario.apellido }}</strong>
+                  <span>{{ feedback.fecha.strftime("%Y-%m-%d %H:%M") }}</span>
+                </div>
+                <p class="mb-0">{{ feedback.comentario }}</p>
+              </div>
             </div>
           {% else %}
-            <div class="list-group-item text-muted">Sin comentarios.</div>
+            <p class="text-muted mb-0">Sin comentarios.</p>
           {% endfor %}
         </div>
-        <form method="post" action="/solicitudes/{{ solicitud.id }}/feedback">
-          <label class="form-label">Agregar comentario</label>
-          <textarea class="form-control mb-2" name="comentario" required></textarea>
-          <button class="btn btn-primary" type="submit">Guardar comentario</button>
-        </form>
+        {% if current_user.rol in ["Docente", "Administrador"] %}
+          <form method="post" action="/solicitudes/{{ solicitud.id }}/estado">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Estado</label>
+                <select class="form-select" name="estado">
+                  {% for estado in estados %}
+                    <option value="{{ estado }}" {% if estado == solicitud.estado %}selected{% endif %}>{{ estado }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-8 mb-3">
+                <label class="form-label">Comentario</label>
+                <textarea class="form-control" name="comentario"></textarea>
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Guardar avance</button>
+          </form>
+        {% else %}
+          <form method="post" action="/solicitudes/{{ solicitud.id }}/feedback">
+            <label class="form-label">Agregar comentario</label>
+            <textarea class="form-control mb-2" name="comentario" required></textarea>
+            <button class="btn btn-primary" type="submit">Guardar comentario</button>
+          </form>
+        {% endif %}
       </div>
     </div>
   </div>
   <div class="col-lg-4">
-    {% if current_user.rol in ["Docente", "Administrador"] %}
-      <div class="card mb-3">
-        <div class="card-body">
-          <h2 class="h5">Evaluacion</h2>
-          <form method="post" action="/solicitudes/{{ solicitud.id }}/estado">
-            <div class="mb-3">
-              <label class="form-label">Estado</label>
-              <select class="form-select" name="estado">
-                {% for estado in estados %}
-                  <option value="{{ estado }}" {% if estado == solicitud.estado %}selected{% endif %}>{{ estado }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Feedback opcional</label>
-              <textarea class="form-control" name="comentario"></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit">Actualizar</button>
-          </form>
-        </div>
-      </div>
-    {% endif %}
     <div class="card mb-3">
       <div class="card-body">
         <h2 class="h5">Adjuntos</h2>
@@ -99,7 +101,7 @@
           {% for item in solicitud.historial %}
             <li class="list-group-item px-0">
               {{ item.estado_anterior or "Inicio" }} -> {{ item.estado_nuevo }}
-              <span class="d-block small text-muted">{{ item.usuario.nombre }} · {{ item.fecha.strftime("%Y-%m-%d %H:%M") }}</span>
+              <span class="d-block small text-muted">{{ item.usuario.nombre }} &middot; {{ item.fecha.strftime("%Y-%m-%d %H:%M") }}</span>
             </li>
           {% else %}
             <li class="list-group-item px-0 text-muted">Sin historial.</li>

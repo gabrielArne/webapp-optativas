@@ -28,3 +28,75 @@ textarea {
   min-height: 120px;
 }
 
+.feedback-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.feedback-message {
+  display: flex;
+}
+
+.feedback-message-own {
+  justify-content: flex-end;
+}
+
+.feedback-message-other {
+  justify-content: flex-start;
+}
+
+.feedback-bubble {
+  border-radius: 22px;
+  max-width: min(78%, 640px);
+  padding: 0.85rem 1rem;
+  position: relative;
+  white-space: pre-wrap;
+}
+
+.feedback-message-own .feedback-bubble {
+  background: #0acb4a;
+  border-bottom-right-radius: 6px;
+  color: #fff;
+}
+
+.feedback-message-other .feedback-bubble {
+  background: #e9ecef;
+  border-bottom-left-radius: 6px;
+  color: #212529;
+}
+
+.feedback-message-own .feedback-bubble::after,
+.feedback-message-other .feedback-bubble::after {
+  border-style: solid;
+  bottom: 0;
+  content: "";
+  position: absolute;
+}
+
+.feedback-message-own .feedback-bubble::after {
+  border-color: transparent transparent #0acb4a transparent;
+  border-width: 0 0 14px 18px;
+  right: -10px;
+}
+
+.feedback-message-other .feedback-bubble::after {
+  border-color: transparent transparent #e9ecef transparent;
+  border-width: 0 18px 14px 0;
+  left: -10px;
+}
+
+.feedback-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.35rem;
+  opacity: 0.78;
+}
+
+@media (max-width: 576px) {
+  .feedback-bubble {
+    max-width: 92%;
+  }
+}
