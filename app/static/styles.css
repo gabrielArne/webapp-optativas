@@ -31,7 +31,8 @@ textarea {
 .feedback-thread {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1.25rem;
+  padding: 0.25rem 0.6rem 0.75rem;
 }
 
 .feedback-message {
@@ -47,23 +48,26 @@ textarea {
 }
 
 .feedback-bubble {
-  border-radius: 22px;
-  max-width: min(78%, 640px);
-  padding: 0.85rem 1rem;
+  border: 0;
+  border-radius: 30px;
+  box-shadow: none;
+  max-width: min(72%, 620px);
+  min-height: 86px;
+  padding: 1.15rem 1.35rem;
   position: relative;
   white-space: pre-wrap;
 }
 
 .feedback-message-own .feedback-bubble {
-  background: #0acb4a;
-  border-bottom-right-radius: 6px;
+  background: #05c948;
+  border-bottom-right-radius: 10px;
   color: #fff;
 }
 
 .feedback-message-other .feedback-bubble {
-  background: #e9ecef;
-  border-bottom-left-radius: 6px;
-  color: #212529;
+  background: #e8ecef;
+  border-bottom-left-radius: 10px;
+  color: #1f2933;
 }
 
 .feedback-message-own .feedback-bubble::after,
@@ -75,28 +79,34 @@ textarea {
 }
 
 .feedback-message-own .feedback-bubble::after {
-  border-color: transparent transparent #0acb4a transparent;
-  border-width: 0 0 14px 18px;
-  right: -10px;
+  border-color: transparent transparent #05c948 transparent;
+  border-width: 0 0 24px 28px;
+  right: -16px;
 }
 
 .feedback-message-other .feedback-bubble::after {
-  border-color: transparent transparent #e9ecef transparent;
-  border-width: 0 18px 14px 0;
-  left: -10px;
+  border-color: transparent transparent #e8ecef transparent;
+  border-width: 0 28px 24px 0;
+  left: -16px;
 }
 
 .feedback-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  font-size: 0.8rem;
-  margin-bottom: 0.35rem;
-  opacity: 0.78;
+  font-size: 0.78rem;
+  margin-bottom: 0.45rem;
+  opacity: 0.7;
+}
+
+.feedback-bubble p {
+  font-size: 1rem;
+  line-height: 1.4;
 }
 
 @media (max-width: 576px) {
   .feedback-bubble {
-    max-width: 92%;
+    max-width: 88%;
+    min-height: 72px;
   }
 }
