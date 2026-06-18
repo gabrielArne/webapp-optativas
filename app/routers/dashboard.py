@@ -39,7 +39,20 @@ def dashboard(
             .order_by(Solicitud.fecha_creacion.desc())
             .all()
         )
-        propuestas = db.query(Propuesta).filter(Propuesta.docente_id == current_user.id).all()
+        propuestas = (
+            db.query(Propuesta)
+            .filter(Propuesta.docente_id == current_user.id)
+            .order_by(Propuesta.fecha_creacion.desc())
+            .limit(5)
+            .all()
+        )
+        materias = (
+            db.query(BancoMateria)
+            .filter(BancoMateria.estado == EstadoBancoMateria.APROBADA.value)
+            .order_by(BancoMateria.nombre)
+            .limit(5)
+            .all()
+        )
         return templates.TemplateResponse(
             "dashboard/docente.html",
             page_context(
@@ -47,6 +60,7 @@ def dashboard(
                 current_user=current_user,
                 pending=pending,
                 propuestas=propuestas,
+                materias=materias,
                 notifications=notifications,
             ),
         )
