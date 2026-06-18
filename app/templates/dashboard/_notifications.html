@@ -6,7 +6,7 @@
     </div>
     <ul class="list-group list-group-flush">
       {% for notification in notifications %}
-        <li class="list-group-item px-0 {% if not notification.leida %}fw-semibold{% endif %}">
+        <li class="list-group-item px-0">
           {{ notification.mensaje }}
         </li>
       {% else %}
@@ -15,4 +15,3 @@
     </ul>
   </div>
 </div>
-

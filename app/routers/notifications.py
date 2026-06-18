@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import require_user
@@ -27,17 +26,4 @@ def list_notifications(
         "notifications.html",
         page_context(request, current_user=current_user, notifications=notifications),
     )
-
-
-@router.post("/{notification_id}/leer")
-def mark_read(
-    notification_id: int,
-    current_user: Usuario = Depends(require_user),
-    db: Session = Depends(get_db),
-):
-    notification = db.get(Notificacion, notification_id)
-    if notification and notification.usuario_id == current_user.id:
-        notification.leida = True
-        db.commit()
-    return RedirectResponse("/notificaciones", status_code=303)
 

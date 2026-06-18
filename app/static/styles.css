@@ -27,3 +27,11 @@ body {
 textarea {
   min-height: 120px;
 }
+
+.feedback-list .list-group-item:nth-child(odd) {
+  background-color: #fff;
+}
+
+.feedback-list .list-group-item:nth-child(even) {
+  background-color: #f1f3f5;
+}
