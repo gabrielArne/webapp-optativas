@@ -14,6 +14,8 @@ class Propuesta(Base):
     docente_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"), nullable=False)
     titulo: Mapped[str] = mapped_column(String(200), nullable=False)
     descripcion: Mapped[str] = mapped_column(Text, nullable=False)
+    documentacion_nombre_archivo: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    documentacion_ruta_archivo: Mapped[str | None] = mapped_column(String(500), nullable=True)
     estado: Mapped[str] = mapped_column(String(30), default=EstadoPropuesta.ABIERTA.value, nullable=False)
     fecha_creacion: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     fecha_last_update: Mapped[datetime] = mapped_column(

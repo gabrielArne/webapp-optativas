@@ -14,6 +14,13 @@
 <div class="card mb-3">
   <div class="card-body">
     <p class="mb-0">{{ propuesta.descripcion }}</p>
+    {% if propuesta.documentacion_ruta_archivo %}
+      <hr>
+      <p class="mb-0">
+        Documentacion complementaria:
+        <a href="/propuestas/{{ propuesta.id }}/documentacion">{{ propuesta.documentacion_nombre_archivo }}</a>
+      </p>
+    {% endif %}
   </div>
 </div>
 {% if current_user.rol == "Alumno" and propuesta.estado == "ABIERTA" %}

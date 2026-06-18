@@ -19,6 +19,17 @@ from app.utils.templates import page_context, templates
 router = APIRouter(prefix="/propuestas", tags=["propuestas"])
 
 
+def save_propuesta_documentacion(documentacion: UploadFile) -> tuple[str, str]:
+    upload_dir = Path(settings.upload_dir) / "propuestas" / "documentacion"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    original_name = Path(documentacion.filename or "documentacion").name
+    stored_name = f"{uuid4().hex}_{original_name}"
+    destination = upload_dir / stored_name
+    with destination.open("wb") as buffer:
+        shutil.copyfileobj(documentacion.file, buffer)
+    return original_name, str(destination)
+
+
 @router.get("")
 def list_propuestas(
     request: Request,
@@ -50,10 +61,17 @@ def create_propuesta(
     request: Request,
     titulo: str = Form(...),
     descripcion: str = Form(...),
+    documentacion: UploadFile | None = File(None),
     current_user: Usuario = Depends(require_roles(RolUsuario.DOCENTE.value, RolUsuario.ADMIN.value)),
     db: Session = Depends(get_db),
 ):
-    db.add(Propuesta(docente_id=current_user.id, titulo=titulo.strip(), descripcion=descripcion.strip()))
+    propuesta = Propuesta(docente_id=current_user.id, titulo=titulo.strip(), descripcion=descripcion.strip())
+    if documentacion and documentacion.filename:
+        nombre_archivo, ruta_archivo = save_propuesta_documentacion(documentacion)
+        propuesta.documentacion_nombre_archivo = nombre_archivo
+        propuesta.documentacion_ruta_archivo = ruta_archivo
+
+    db.add(propuesta)
     db.commit()
     flash(request, "Propuesta creada.")
     return RedirectResponse("/propuestas", status_code=303)
@@ -79,6 +97,26 @@ def propuesta_detail(
             estados_postulacion=[estado.value for estado in EstadoPostulacion],
         ),
     )
+
+
+@router.get("/{propuesta_id}/documentacion")
+def download_propuesta_documentacion(
+    request: Request,
+    propuesta_id: int,
+    current_user: Usuario = Depends(require_user),
+    db: Session = Depends(get_db),
+):
+    propuesta = db.get(Propuesta, propuesta_id)
+    if not propuesta or not propuesta.documentacion_ruta_archivo:
+        flash(request, "La propuesta no tiene documentacion complementaria.", "danger")
+        return RedirectResponse("/propuestas", status_code=303)
+
+    file_path = Path(propuesta.documentacion_ruta_archivo)
+    if not file_path.exists():
+        flash(request, "No se encontro el archivo de la propuesta.", "danger")
+        return RedirectResponse(f"/propuestas/{propuesta.id}", status_code=303)
+
+    return FileResponse(file_path, filename=propuesta.documentacion_nombre_archivo)
 
 
 @router.post("/{propuesta_id}/postular")
