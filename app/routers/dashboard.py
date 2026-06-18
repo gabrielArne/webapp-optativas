@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import require_user
 from app.database.session import get_db
 from app.models.banco import BancoMateria
-from app.models.enums import EstadoBancoMateria, EstadoPropuesta, EstadoSolicitud, RolUsuario
+from app.models.enums import EstadoBancoMateria, EstadoPostulacion, EstadoPropuesta, EstadoSolicitud, RolUsuario
 from app.models.propuesta import Propuesta, SolicitudPropuesta
 from app.models.solicitud import Solicitud
 from app.models.user import Usuario
@@ -30,6 +30,16 @@ def dashboard(
             .order_by(Solicitud.fecha_creacion.desc())
             .all()
         )
+        postulaciones_pendientes = (
+            db.query(SolicitudPropuesta)
+            .join(Propuesta)
+            .filter(
+                Propuesta.docente_id == current_user.id,
+                SolicitudPropuesta.estado == EstadoPostulacion.PENDIENTE.value,
+            )
+            .order_by(SolicitudPropuesta.fecha.desc())
+            .all()
+        )
         propuestas = (
             db.query(Propuesta)
             .filter(Propuesta.docente_id == current_user.id)
@@ -50,6 +60,7 @@ def dashboard(
                 request,
                 current_user=current_user,
                 pending=pending,
+                postulaciones_pendientes=postulaciones_pendientes,
                 propuestas=propuestas,
                 materias=materias,
             ),

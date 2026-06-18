@@ -11,6 +11,33 @@
         <h2 class="h5">Solicitudes pendientes o en revision</h2>
         {% set solicitudes = pending %}
         {% include "solicitudes/_table.html" %}
+        <h3 class="h6 mt-4">Postulaciones a mis proyectos</h3>
+        <div class="table-responsive">
+          <table class="table table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Proyecto</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Alumno</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for postulacion in postulaciones_pendientes %}
+                <tr>
+                  <td>{{ postulacion.propuesta.titulo }}</td>
+                  <td>Proyecto</td>
+                  <td><span class="badge text-bg-secondary badge-state">{{ postulacion.estado }}</span></td>
+                  <td>{{ postulacion.alumno.apellido }}, {{ postulacion.alumno.nombre }}</td>
+                  <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="/propuestas/{{ postulacion.propuesta_id }}">Ver</a></td>
+                </tr>
+              {% else %}
+                <tr><td colspan="5" class="text-muted">No hay postulaciones pendientes a tus proyectos.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
