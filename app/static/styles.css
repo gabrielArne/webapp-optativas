@@ -28,6 +28,15 @@ textarea {
   min-height: 120px;
 }
 
+.notification-bell svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  vertical-align: -0.15rem;
+}
+
 .feedback-list .list-group-item:nth-child(odd) {
   background-color: #fff;
 }

@@ -6,7 +6,6 @@ from app.auth.dependencies import require_user
 from app.database.session import get_db
 from app.models.banco import BancoMateria
 from app.models.enums import EstadoBancoMateria, EstadoPropuesta, EstadoSolicitud, RolUsuario
-from app.models.notification import Notificacion
 from app.models.propuesta import Propuesta
 from app.models.solicitud import Solicitud
 from app.models.user import Usuario
@@ -23,14 +22,6 @@ def dashboard(
 ):
     if current_user.rol == RolUsuario.ADMIN.value:
         return RedirectResponse("/usuarios", status_code=303)
-
-    notifications = (
-        db.query(Notificacion)
-        .filter(Notificacion.usuario_id == current_user.id)
-        .order_by(Notificacion.fecha.desc())
-        .limit(5)
-        .all()
-    )
 
     if current_user.rol == RolUsuario.DOCENTE.value:
         pending = (
@@ -61,7 +52,6 @@ def dashboard(
                 pending=pending,
                 propuestas=propuestas,
                 materias=materias,
-                notifications=notifications,
             ),
         )
 
@@ -93,6 +83,5 @@ def dashboard(
             solicitudes=solicitudes,
             propuestas=propuestas,
             materias=materias,
-            notifications=notifications,
         ),
     )
