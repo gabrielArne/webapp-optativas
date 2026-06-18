@@ -5,11 +5,6 @@
     <h1 class="h3">{{ propuesta.titulo }}</h1>
     <p class="text-muted mb-0">{{ propuesta.estado }} · {{ propuesta.docente.apellido }}, {{ propuesta.docente.nombre }}</p>
   </div>
-  {% if current_user.rol == "Alumno" and propuesta.estado == "ABIERTA" %}
-    <form method="post" action="/propuestas/{{ propuesta.id }}/postular">
-      <button class="btn btn-primary" type="submit">Postularme</button>
-    </form>
-  {% endif %}
   {% if current_user.rol in ["Docente", "Administrador"] and propuesta.estado == "ABIERTA" %}
     <form method="post" action="/propuestas/{{ propuesta.id }}/finalizar">
       <button class="btn btn-outline-secondary" type="submit">Finalizar postulacion</button>
@@ -21,18 +16,44 @@
     <p class="mb-0">{{ propuesta.descripcion }}</p>
   </div>
 </div>
+{% if current_user.rol == "Alumno" and propuesta.estado == "ABIERTA" %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h2 class="h5">Postularme</h2>
+      <form method="post" action="/propuestas/{{ propuesta.id }}/postular" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label">Observacion</label>
+          <textarea class="form-control" name="observacion" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Documentacion opcional</label>
+          <input class="form-control" type="file" name="documentacion">
+        </div>
+        <button class="btn btn-primary" type="submit">Enviar postulacion</button>
+      </form>
+    </div>
+  </div>
+{% endif %}
 {% if current_user.rol in ["Docente", "Administrador"] %}
   <div class="card">
     <div class="card-body">
       <h2 class="h5">Alumnos postulados</h2>
       <div class="table-responsive">
         <table class="table table-sm">
-          <thead><tr><th>Alumno</th><th>Email</th><th>Estado</th><th></th></tr></thead>
+          <thead><tr><th>Alumno</th><th>Email</th><th>Observacion</th><th>Documentacion</th><th>Estado</th><th></th></tr></thead>
           <tbody>
             {% for postulacion in propuesta.postulaciones %}
               <tr>
                 <td>{{ postulacion.alumno.apellido }}, {{ postulacion.alumno.nombre }}</td>
                 <td>{{ postulacion.alumno.email }}</td>
+                <td>{{ postulacion.observacion }}</td>
+                <td>
+                  {% if postulacion.ruta_archivo %}
+                    <a href="/propuestas/postulaciones/{{ postulacion.id }}/adjunto">{{ postulacion.nombre_archivo }}</a>
+                  {% else %}
+                    <span class="text-muted">Sin adjunto</span>
+                  {% endif %}
+                </td>
                 <td>{{ postulacion.estado }}</td>
                 <td>
                   <form class="d-flex gap-2" method="post" action="/propuestas/postulaciones/{{ postulacion.id }}/estado">
@@ -46,7 +67,7 @@
                 </td>
               </tr>
             {% else %}
-              <tr><td colspan="4" class="text-muted">Sin postulaciones.</td></tr>
+              <tr><td colspan="6" class="text-muted">Sin postulaciones.</td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -55,4 +76,3 @@
   </div>
 {% endif %}
 {% endblock %}
-

@@ -1,9 +1,14 @@
-from fastapi import APIRouter, Depends, Form, Request
-from fastapi.responses import RedirectResponse
+import shutil
+from pathlib import Path
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
+from fastapi.responses import FileResponse, RedirectResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import flash, require_roles, require_user
+from app.core.config import settings
 from app.database.session import get_db
 from app.models.enums import EstadoPostulacion, EstadoPropuesta, RolUsuario
 from app.models.propuesta import Propuesta, SolicitudPropuesta
@@ -80,6 +85,8 @@ def propuesta_detail(
 def apply_propuesta(
     request: Request,
     propuesta_id: int,
+    observacion: str = Form(...),
+    documentacion: UploadFile | None = File(None),
     current_user: Usuario = Depends(require_roles(RolUsuario.ALUMNO.value)),
     db: Session = Depends(get_db),
 ):
@@ -87,7 +94,28 @@ def apply_propuesta(
     if not propuesta or propuesta.estado != EstadoPropuesta.ABIERTA.value:
         flash(request, "La propuesta no esta disponible.", "danger")
         return RedirectResponse("/propuestas", status_code=303)
-    db.add(SolicitudPropuesta(propuesta_id=propuesta.id, alumno_id=current_user.id))
+    observacion_limpia = observacion.strip()
+    if not observacion_limpia:
+        flash(request, "La observacion es obligatoria para postularse.", "danger")
+        return RedirectResponse(f"/propuestas/{propuesta.id}", status_code=303)
+
+    postulacion = SolicitudPropuesta(
+        propuesta_id=propuesta.id,
+        alumno_id=current_user.id,
+        observacion=observacion_limpia,
+    )
+    if documentacion and documentacion.filename:
+        upload_dir = Path(settings.upload_dir) / "propuestas"
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        original_name = Path(documentacion.filename).name
+        stored_name = f"{uuid4().hex}_{original_name}"
+        destination = upload_dir / stored_name
+        with destination.open("wb") as buffer:
+            shutil.copyfileobj(documentacion.file, buffer)
+        postulacion.nombre_archivo = original_name
+        postulacion.ruta_archivo = str(destination)
+
+    db.add(postulacion)
     try:
         notify(db, propuesta.docente_id, f"Nuevo alumno postulado a la propuesta: {propuesta.titulo}")
         db.commit()
@@ -96,6 +124,28 @@ def apply_propuesta(
         db.rollback()
         flash(request, "Ya te postulaste a esa propuesta.", "warning")
     return RedirectResponse(f"/propuestas/{propuesta.id}", status_code=303)
+
+
+@router.get("/postulaciones/{postulacion_id}/adjunto")
+def download_postulacion_adjunto(
+    request: Request,
+    postulacion_id: int,
+    current_user: Usuario = Depends(require_user),
+    db: Session = Depends(get_db),
+):
+    postulacion = db.get(SolicitudPropuesta, postulacion_id)
+    if not postulacion or not postulacion.ruta_archivo:
+        flash(request, "La postulacion no tiene documentacion adjunta.", "danger")
+        return RedirectResponse("/propuestas", status_code=303)
+    puede_descargar = (
+        current_user.rol == RolUsuario.ADMIN.value
+        or postulacion.alumno_id == current_user.id
+        or (current_user.rol == RolUsuario.DOCENTE.value and postulacion.propuesta.docente_id == current_user.id)
+    )
+    if not puede_descargar:
+        flash(request, "No tenes acceso a ese adjunto.", "danger")
+        return RedirectResponse("/propuestas", status_code=303)
+    return FileResponse(postulacion.ruta_archivo, filename=postulacion.nombre_archivo)
 
 
 @router.post("/postulaciones/{postulacion_id}/estado")
@@ -134,4 +184,3 @@ def finish_propuesta(
     db.commit()
     flash(request, "Propuesta finalizada.")
     return RedirectResponse(f"/propuestas/{propuesta.id}", status_code=303)
-

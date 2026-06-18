@@ -31,6 +31,9 @@ class SolicitudPropuesta(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     propuesta_id: Mapped[int] = mapped_column(ForeignKey("propuestas.id"), nullable=False)
     alumno_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"), nullable=False)
+    observacion: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    nombre_archivo: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    ruta_archivo: Mapped[str | None] = mapped_column(String(500), nullable=True)
     estado: Mapped[str] = mapped_column(String(30), default=EstadoPostulacion.PENDIENTE.value, nullable=False)
     fecha: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     fecha_last_update: Mapped[datetime] = mapped_column(
@@ -39,4 +42,3 @@ class SolicitudPropuesta(Base):
 
     propuesta = relationship("Propuesta", back_populates="postulaciones")
     alumno = relationship("Usuario", back_populates="postulaciones")
-

@@ -10,6 +10,7 @@ from app.database.base import Base
 from app.database.session import SessionLocal, engine
 from app.models import *  # noqa: F403
 from app.routers import auth, banco, dashboard, notifications, propuestas, solicitudes, users
+from app.services.schema import ensure_runtime_schema
 from app.services.seed import seed_initial_data
 
 
@@ -24,6 +25,7 @@ def create_app() -> FastAPI:
 
     Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
     Base.metadata.create_all(bind=engine)
+    ensure_runtime_schema()
     with SessionLocal() as db:
         seed_initial_data(db)
 
@@ -43,4 +45,3 @@ app = create_app()
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
-
