@@ -13,7 +13,6 @@
               value="{{ materia.id }}"
               data-nombre="{{ materia.nombre }}"
               data-descripcion="{{ materia.descripcion }}"
-              data-docente-id="{{ materia.docente_id or '' }}"
             >
               {{ materia.nombre }} - {{ materia.carrera }} - {{ materia.universidad }}
             </option>
@@ -26,15 +25,6 @@
           <select class="form-select" name="tipo" id="tipo" required>
             {% for tipo in tipos %}
               <option value="{{ tipo }}">{{ tipo }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-8 mb-3">
-          <label class="form-label">Docente</label>
-          <select class="form-select" name="docente_id" id="docente_id">
-            <option value="">Sin asignar</option>
-            {% for docente in docentes %}
-              <option value="{{ docente.id }}">{{ docente.apellido }}, {{ docente.nombre }}</option>
             {% endfor %}
           </select>
         </div>
@@ -59,7 +49,6 @@
 <script>
   const materiaSelect = document.getElementById("banco_materia_id");
   const tipoSelect = document.getElementById("tipo");
-  const docenteSelect = document.getElementById("docente_id");
   const tituloInput = document.getElementById("titulo");
   const descripcionInput = document.getElementById("descripcion");
 
@@ -71,9 +60,6 @@
     tipoSelect.value = "Materia";
     tituloInput.value = option.dataset.nombre || "";
     descripcionInput.value = option.dataset.descripcion || "";
-    if (option.dataset.docenteId) {
-      docenteSelect.value = option.dataset.docenteId;
-    }
   });
 </script>
 {% endblock %}

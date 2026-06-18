@@ -6,7 +6,7 @@ from app.auth.dependencies import require_user
 from app.database.session import get_db
 from app.models.banco import BancoMateria
 from app.models.enums import EstadoBancoMateria, EstadoPropuesta, EstadoSolicitud, RolUsuario
-from app.models.propuesta import Propuesta
+from app.models.propuesta import Propuesta, SolicitudPropuesta
 from app.models.solicitud import Solicitud
 from app.models.user import Usuario
 from app.utils.templates import page_context, templates
@@ -61,6 +61,12 @@ def dashboard(
         .order_by(Solicitud.fecha_creacion.desc())
         .all()
     )
+    postulaciones = (
+        db.query(SolicitudPropuesta)
+        .filter(SolicitudPropuesta.alumno_id == current_user.id)
+        .order_by(SolicitudPropuesta.fecha.desc())
+        .all()
+    )
     propuestas = (
         db.query(Propuesta)
         .filter(Propuesta.estado == EstadoPropuesta.ABIERTA.value)
@@ -81,6 +87,7 @@ def dashboard(
             request,
             current_user=current_user,
             solicitudes=solicitudes,
+            postulaciones=postulaciones,
             propuestas=propuestas,
             materias=materias,
         ),

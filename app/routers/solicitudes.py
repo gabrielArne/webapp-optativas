@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.database.session import get_db
 from app.models.banco import BancoMateria
 from app.models.enums import EstadoBancoMateria, EstadoSolicitud, RolUsuario, TipoSolicitud
+from app.models.propuesta import SolicitudPropuesta
 from app.models.solicitud import Adjunto, Feedback, HistorialEstado, Solicitud
 from app.models.user import Usuario
 from app.services.notifications import notify
@@ -86,12 +87,21 @@ def list_solicitudes(
     query = query.order_by(Solicitud.fecha_creacion.desc())
     total = query.count()
     solicitudes = query.offset((page - 1) * per_page).limit(per_page).all()
+    postulaciones = []
+    if current_user.rol == RolUsuario.ALUMNO.value:
+        postulaciones = (
+            db.query(SolicitudPropuesta)
+            .filter(SolicitudPropuesta.alumno_id == current_user.id)
+            .order_by(SolicitudPropuesta.fecha.desc())
+            .all()
+        )
     return templates.TemplateResponse(
         "solicitudes/list.html",
         page_context(
             request,
             current_user=current_user,
             solicitudes=solicitudes,
+            postulaciones=postulaciones,
             page=page,
             total_pages=max((total + per_page - 1) // per_page, 1),
             base_url="/solicitudes",
@@ -105,7 +115,6 @@ def new_solicitud_form(
     current_user: Usuario = Depends(require_roles(RolUsuario.ALUMNO.value)),
     db: Session = Depends(get_db),
 ):
-    docentes = db.query(Usuario).filter(Usuario.rol == RolUsuario.DOCENTE.value, Usuario.activo.is_(True)).all()
     materias_banco = (
         db.query(BancoMateria)
         .filter(BancoMateria.estado == EstadoBancoMateria.APROBADA.value)
@@ -117,7 +126,6 @@ def new_solicitud_form(
         page_context(
             request,
             current_user=current_user,
-            docentes=docentes,
             materias_banco=materias_banco,
             tipos=[tipo.value for tipo in TipoSolicitud],
         ),
@@ -130,7 +138,6 @@ def create_solicitud(
     tipo: str = Form(TipoSolicitud.MATERIA.value),
     titulo: str = Form(""),
     descripcion: str = Form(""),
-    docente_id: str = Form(""),
     banco_materia_id: str = Form(""),
     files: list[UploadFile] | None = File(None),
     current_user: Usuario = Depends(require_roles(RolUsuario.ALUMNO.value)),
@@ -147,7 +154,6 @@ def create_solicitud(
             return RedirectResponse("/solicitudes/nueva", status_code=303)
 
     if materia_banco:
-        docente_id_value = materia_banco.docente_id
         titulo_limpio = materia_banco.nombre
         descripcion_limpia = (
             f"Solicitud de materia del banco.\n"
@@ -158,7 +164,6 @@ def create_solicitud(
         tipo_value = TipoSolicitud.MATERIA.value
         estado_value = EstadoSolicitud.APROBADA.value
     else:
-        docente_id_value = int(docente_id) if docente_id else None
         titulo_limpio = titulo.strip()
         descripcion_limpia = descripcion.strip()
         tipo_value = tipo
@@ -169,7 +174,7 @@ def create_solicitud(
 
     solicitud = Solicitud(
         alumno_id=current_user.id,
-        docente_id=docente_id_value,
+        docente_id=None,
         banco_materia_id=materia_banco.id if materia_banco else None,
         tipo=tipo_value,
         titulo=titulo_limpio,
@@ -187,14 +192,6 @@ def create_solicitud(
         )
     )
     save_uploads(db, solicitud, files)
-    if materia_banco:
-        notify(
-            db,
-            docente_id_value,
-            f"Solicitud aprobada automaticamente para la materia del banco: {materia_banco.nombre}",
-        )
-    else:
-        notify(db, docente_id_value, f"Nueva solicitud de {current_user.nombre} {current_user.apellido}: {titulo_limpio}")
     db.commit()
     flash(request, "Solicitud aprobada automaticamente." if materia_banco else "Solicitud enviada.")
     return RedirectResponse(f"/solicitudes/{solicitud.id}", status_code=303)
@@ -260,8 +257,6 @@ def update_estado(
     if not solicitud or not can_view(current_user, solicitud):
         flash(request, "No tenes acceso a esa solicitud.", "danger")
         return RedirectResponse("/solicitudes", status_code=303)
-    if current_user.rol == RolUsuario.DOCENTE.value and solicitud.docente_id is None:
-        solicitud.docente_id = current_user.id
     estado_anterior = solicitud.estado
     comentario_limpio = comentario.strip()
     add_history(db, solicitud, estado, current_user.id)

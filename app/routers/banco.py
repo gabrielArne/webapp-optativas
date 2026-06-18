@@ -45,7 +45,14 @@ def new_materia_form(
     if current_user.rol == RolUsuario.ADMIN.value:
         return RedirectResponse("/usuarios", status_code=303)
 
-    return templates.TemplateResponse("banco/form.html", page_context(request, current_user=current_user))
+    return templates.TemplateResponse(
+        "banco/form.html",
+        page_context(
+            request,
+            current_user=current_user,
+            estados=[estado.value for estado in EstadoBancoMateria],
+        ),
+    )
 
 
 @router.post("")
@@ -55,6 +62,7 @@ def create_materia(
     descripcion: str = Form(...),
     carrera: str = Form(...),
     universidad: str = Form(...),
+    estado: str = Form(...),
     current_user: Usuario = Depends(require_roles(RolUsuario.DOCENTE.value, RolUsuario.ADMIN.value)),
     db: Session = Depends(get_db),
 ):
@@ -65,8 +73,11 @@ def create_materia(
     if not nombre_limpio or not descripcion_limpia or not carrera_limpia or not universidad_limpia:
         flash(request, "Nombre, descripcion, carrera y universidad son obligatorios.", "danger")
         return RedirectResponse("/banco/nueva", status_code=303)
+    estados_validos = {estado_banco.value for estado_banco in EstadoBancoMateria}
+    if estado not in estados_validos:
+        flash(request, "El estado seleccionado no es valido.", "danger")
+        return RedirectResponse("/banco/nueva", status_code=303)
 
-    estado = EstadoBancoMateria.APROBADA.value if current_user.rol == RolUsuario.ADMIN.value else EstadoBancoMateria.PENDIENTE.value
     db.add(
         BancoMateria(
             nombre=nombre_limpio,
@@ -90,6 +101,11 @@ def update_materia_estado(
     current_user: Usuario = Depends(require_roles(RolUsuario.DOCENTE.value, RolUsuario.ADMIN.value)),
     db: Session = Depends(get_db),
 ):
+    estados_validos = {estado_banco.value for estado_banco in EstadoBancoMateria}
+    if estado not in estados_validos:
+        flash(request, "El estado seleccionado no es valido.", "danger")
+        return RedirectResponse("/banco", status_code=303)
+
     materia = db.get(BancoMateria, materia_id)
     if not materia:
         flash(request, "Materia inexistente.", "danger")

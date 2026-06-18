@@ -1,0 +1,28 @@
+<div class="table-responsive">
+  <table class="table table-hover table-sm">
+    <thead>
+      <tr>
+        <th>Titulo</th>
+        <th>Tipo</th>
+        <th>Estado</th>
+        <th>Alumno</th>
+        <th>Docente</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for postulacion in postulaciones %}
+        <tr>
+          <td>{{ postulacion.propuesta.titulo }}</td>
+          <td>Proyecto</td>
+          <td><span class="badge text-bg-secondary badge-state">{{ postulacion.estado }}</span></td>
+          <td>{{ postulacion.alumno.apellido }}, {{ postulacion.alumno.nombre }}</td>
+          <td>{{ postulacion.propuesta.docente.apellido if postulacion.propuesta.docente else "Sin asignar" }}</td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="/propuestas/{{ postulacion.propuesta_id }}">Ver</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="text-muted">No hay postulaciones a proyectos para mostrar.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

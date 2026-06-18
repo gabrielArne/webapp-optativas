@@ -20,6 +20,14 @@
         <label class="form-label">Universidad</label>
         <input class="form-control" name="universidad" required>
       </div>
+      <div class="mb-3">
+        <label class="form-label">Estado</label>
+        <select class="form-select" name="estado" required>
+          {% for estado in estados %}
+            <option value="{{ estado }}" {% if estado == "APROBADA" %}selected{% endif %}>{{ estado }}</option>
+          {% endfor %}
+        </select>
+      </div>
       <button class="btn btn-primary" type="submit">Guardar materia</button>
       <a class="btn btn-link" href="/banco">Cancelar</a>
     </form>
