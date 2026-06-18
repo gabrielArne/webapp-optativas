@@ -31,8 +31,8 @@ textarea {
 .feedback-thread {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  padding: 0.25rem 0.6rem 0.75rem;
+  gap: 0.85rem;
+  padding: 0.25rem 0 0.75rem;
 }
 
 .feedback-message {
@@ -49,24 +49,26 @@ textarea {
 
 .feedback-bubble {
   border: 0;
-  border-radius: 30px;
+  border-radius: 18px;
   box-shadow: none;
-  max-width: min(72%, 620px);
-  min-height: 86px;
-  padding: 1.15rem 1.35rem;
+  display: inline-block;
+  max-width: min(68%, 560px);
+  min-width: 180px;
+  padding: 0.75rem 1rem;
   position: relative;
   white-space: pre-wrap;
+  width: fit-content;
 }
 
 .feedback-message-own .feedback-bubble {
   background: #05c948;
-  border-bottom-right-radius: 10px;
+  border-bottom-right-radius: 5px;
   color: #fff;
 }
 
 .feedback-message-other .feedback-bubble {
   background: #e8ecef;
-  border-bottom-left-radius: 10px;
+  border-bottom-left-radius: 5px;
   color: #1f2933;
 }
 
@@ -80,14 +82,14 @@ textarea {
 
 .feedback-message-own .feedback-bubble::after {
   border-color: transparent transparent #05c948 transparent;
-  border-width: 0 0 24px 28px;
-  right: -16px;
+  border-width: 0 0 13px 16px;
+  right: -9px;
 }
 
 .feedback-message-other .feedback-bubble::after {
   border-color: transparent transparent #e8ecef transparent;
-  border-width: 0 28px 24px 0;
-  left: -16px;
+  border-width: 0 16px 13px 0;
+  left: -9px;
 }
 
 .feedback-meta {
@@ -102,11 +104,12 @@ textarea {
 .feedback-bubble p {
   font-size: 1rem;
   line-height: 1.4;
+  white-space: pre-wrap;
 }
 
 @media (max-width: 576px) {
   .feedback-bubble {
     max-width: 88%;
-    min-height: 72px;
+    min-width: 0;
   }
 }
