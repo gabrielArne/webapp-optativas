@@ -47,14 +47,26 @@ def create_materia(
     request: Request,
     nombre: str = Form(...),
     descripcion: str = Form(...),
+    carrera: str = Form(...),
+    universidad: str = Form(...),
     current_user: Usuario = Depends(require_roles(RolUsuario.DOCENTE.value, RolUsuario.ADMIN.value)),
     db: Session = Depends(get_db),
 ):
+    nombre_limpio = nombre.strip()
+    descripcion_limpia = descripcion.strip()
+    carrera_limpia = carrera.strip()
+    universidad_limpia = universidad.strip()
+    if not nombre_limpio or not descripcion_limpia or not carrera_limpia or not universidad_limpia:
+        flash(request, "Nombre, descripcion, carrera y universidad son obligatorios.", "danger")
+        return RedirectResponse("/banco/nueva", status_code=303)
+
     estado = EstadoBancoMateria.APROBADA.value if current_user.rol == RolUsuario.ADMIN.value else EstadoBancoMateria.PENDIENTE.value
     db.add(
         BancoMateria(
-            nombre=nombre.strip(),
-            descripcion=descripcion.strip(),
+            nombre=nombre_limpio,
+            descripcion=descripcion_limpia,
+            carrera=carrera_limpia,
+            universidad=universidad_limpia,
             estado=estado,
             docente_id=current_user.id,
         )
@@ -81,4 +93,3 @@ def update_materia_estado(
     db.commit()
     flash(request, "Estado de materia actualizado.")
     return RedirectResponse("/banco", status_code=303)
-

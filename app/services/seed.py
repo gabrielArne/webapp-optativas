@@ -69,30 +69,40 @@ def seed_initial_data(db: Session) -> None:
         BancoMateria(
             nombre="Aprendizaje Automatico Aplicado",
             descripcion="Modelos supervisados y no supervisados con casos reales.",
+            carrera="Licenciatura en Ciencia de Datos",
+            universidad="UNSAM",
             estado=EstadoBancoMateria.APROBADA.value,
             docente_id=docente1.id,
         ),
         BancoMateria(
             nombre="Procesamiento de Lenguaje Natural",
             descripcion="Tecnicas modernas para texto, embeddings y clasificacion.",
+            carrera="Licenciatura en Ciencia de Datos",
+            universidad="UNSAM",
             estado=EstadoBancoMateria.APROBADA.value,
             docente_id=docente2.id,
         ),
         BancoMateria(
             nombre="Visualizacion de Datos",
             descripcion="Principios de visualizacion, dashboards y comunicacion.",
+            carrera="Licenciatura en Ciencia de Datos",
+            universidad="UNSAM",
             estado=EstadoBancoMateria.APROBADA.value,
             docente_id=docente1.id,
         ),
         BancoMateria(
             nombre="Bases de Datos Avanzadas",
             descripcion="Optimizacion, modelado y motores analiticos.",
+            carrera="Licenciatura en Ciencia de Datos",
+            universidad="UNSAM",
             estado=EstadoBancoMateria.PENDIENTE.value,
             docente_id=docente2.id,
         ),
         BancoMateria(
             nombre="Etica y Gobernanza de Datos",
             descripcion="Privacidad, sesgos, auditoria y gobernanza institucional.",
+            carrera="Licenciatura en Ciencia de Datos",
+            universidad="UNSAM",
             estado=EstadoBancoMateria.APROBADA.value,
             docente_id=docente1.id,
         ),
@@ -159,4 +169,3 @@ def seed_initial_data(db: Session) -> None:
         notify(db, solicitud.alumno_id, f"Solicitud creada: {solicitud.titulo}")
 
     db.commit()
-

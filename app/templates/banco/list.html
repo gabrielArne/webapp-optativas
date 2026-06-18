@@ -10,12 +10,14 @@
   <div class="card-body">
     <div class="table-responsive">
       <table class="table">
-        <thead><tr><th>Nombre</th><th>Descripcion</th><th>Docente</th><th>Estado</th><th></th></tr></thead>
+        <thead><tr><th>Nombre</th><th>Descripcion</th><th>Carrera</th><th>Universidad</th><th>Docente</th><th>Estado</th><th></th></tr></thead>
         <tbody>
           {% for materia in materias %}
             <tr>
               <td>{{ materia.nombre }}</td>
               <td>{{ materia.descripcion }}</td>
+              <td>{{ materia.carrera }}</td>
+              <td>{{ materia.universidad }}</td>
               <td>{{ materia.docente.apellido if materia.docente else "-" }}</td>
               <td><span class="badge text-bg-secondary">{{ materia.estado }}</span></td>
               <td>
@@ -32,7 +34,7 @@
               </td>
             </tr>
           {% else %}
-            <tr><td colspan="5" class="text-muted">No hay materias para mostrar.</td></tr>
+            <tr><td colspan="7" class="text-muted">No hay materias para mostrar.</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -40,4 +42,3 @@
   </div>
 </div>
 {% endblock %}
-

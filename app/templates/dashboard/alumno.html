@@ -31,7 +31,10 @@
         <h2 class="h5">Banco de materias</h2>
         <ul class="list-group list-group-flush">
           {% for materia in materias %}
-            <li class="list-group-item px-0">{{ materia.nombre }}</li>
+            <li class="list-group-item px-0">
+              <div>{{ materia.nombre }}</div>
+              <small class="text-muted">{{ materia.carrera }} &middot; {{ materia.universidad }}</small>
+            </li>
           {% else %}
             <li class="list-group-item px-0">No hay materias aprobadas.</li>
           {% endfor %}
@@ -42,4 +45,3 @@
   </div>
 </div>
 {% endblock %}
-

@@ -24,5 +24,16 @@ def ensure_runtime_schema() -> None:
             if "documentacion_ruta_archivo" not in columns:
                 statements.append("ALTER TABLE propuestas ADD COLUMN documentacion_ruta_archivo VARCHAR(500)")
 
+        if inspector.has_table("banco_materias"):
+            columns = {column["name"] for column in inspector.get_columns("banco_materias")}
+            if "carrera" not in columns:
+                statements.append(
+                    "ALTER TABLE banco_materias ADD COLUMN carrera VARCHAR(200) NOT NULL DEFAULT 'Sin especificar'"
+                )
+            if "universidad" not in columns:
+                statements.append(
+                    "ALTER TABLE banco_materias ADD COLUMN universidad VARCHAR(200) NOT NULL DEFAULT 'Sin especificar'"
+                )
+
         for statement in statements:
             connection.execute(text(statement))
