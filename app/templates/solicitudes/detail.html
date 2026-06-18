@@ -38,19 +38,15 @@
     <div class="card mb-3">
       <div class="card-body">
         <h2 class="h5">Feedback y avances</h2>
-        <div class="feedback-thread mb-3">
+        <div class="list-group mb-3">
           {% for feedback in solicitud.feedbacks %}
-            <div class="feedback-message {% if feedback.usuario_id == current_user.id %}feedback-message-own{% else %}feedback-message-other{% endif %}">
-              <div class="feedback-bubble">
-                <div class="feedback-meta">
-                  <strong>{{ feedback.usuario.nombre }} {{ feedback.usuario.apellido }}</strong>
-                  <span>{{ feedback.fecha.strftime("%Y-%m-%d %H:%M") }}</span>
-                </div>
-                <p class="mb-0">{{ feedback.comentario }}</p>
-              </div>
+            <div class="list-group-item">
+              <strong>{{ feedback.usuario.nombre }} {{ feedback.usuario.apellido }}</strong>
+              <span class="text-muted small">{{ feedback.fecha.strftime("%Y-%m-%d %H:%M") }}</span>
+              <p class="mb-0">{{ feedback.comentario }}</p>
             </div>
           {% else %}
-            <p class="text-muted mb-0">Sin comentarios.</p>
+            <div class="list-group-item text-muted">Sin comentarios.</div>
           {% endfor %}
         </div>
         {% if current_user.rol in ["Docente", "Administrador"] %}
