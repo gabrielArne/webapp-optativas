@@ -35,5 +35,10 @@ def ensure_runtime_schema() -> None:
                     "ALTER TABLE banco_materias ADD COLUMN universidad VARCHAR(200) NOT NULL DEFAULT 'Sin especificar'"
                 )
 
+        if inspector.has_table("solicitudes"):
+            columns = {column["name"] for column in inspector.get_columns("solicitudes")}
+            if "banco_materia_id" not in columns:
+                statements.append("ALTER TABLE solicitudes ADD COLUMN banco_materia_id INTEGER")
+
         for statement in statements:
             connection.execute(text(statement))

@@ -20,6 +20,14 @@
         <dl class="row mb-0">
           <dt class="col-sm-3">Alumno</dt>
           <dd class="col-sm-9">{{ solicitud.alumno.apellido }}, {{ solicitud.alumno.nombre }}</dd>
+          {% if solicitud.materia_banco %}
+            <dt class="col-sm-3">Materia banco</dt>
+            <dd class="col-sm-9">
+              {{ solicitud.materia_banco.nombre }} -
+              {{ solicitud.materia_banco.carrera }} -
+              {{ solicitud.materia_banco.universidad }}
+            </dd>
+          {% endif %}
           <dt class="col-sm-3">Docente</dt>
           <dd class="col-sm-9">{{ solicitud.docente.apellido if solicitud.docente else "Sin asignar" }}</dd>
           <dt class="col-sm-3">Fecha</dt>
@@ -102,4 +110,3 @@
   </div>
 </div>
 {% endblock %}
-

@@ -4,10 +4,26 @@
 <div class="card">
   <div class="card-body">
     <form method="post" action="/solicitudes" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label class="form-label">Materia del banco</label>
+        <select class="form-select" name="banco_materia_id" id="banco_materia_id">
+          <option value="">No seleccionar materia del banco</option>
+          {% for materia in materias_banco %}
+            <option
+              value="{{ materia.id }}"
+              data-nombre="{{ materia.nombre }}"
+              data-descripcion="{{ materia.descripcion }}"
+              data-docente-id="{{ materia.docente_id or '' }}"
+            >
+              {{ materia.nombre }} - {{ materia.carrera }} - {{ materia.universidad }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
       <div class="row">
         <div class="col-md-4 mb-3">
           <label class="form-label">Tipo</label>
-          <select class="form-select" name="tipo" required>
+          <select class="form-select" name="tipo" id="tipo" required>
             {% for tipo in tipos %}
               <option value="{{ tipo }}">{{ tipo }}</option>
             {% endfor %}
@@ -15,7 +31,7 @@
         </div>
         <div class="col-md-8 mb-3">
           <label class="form-label">Docente</label>
-          <select class="form-select" name="docente_id">
+          <select class="form-select" name="docente_id" id="docente_id">
             <option value="">Sin asignar</option>
             {% for docente in docentes %}
               <option value="{{ docente.id }}">{{ docente.apellido }}, {{ docente.nombre }}</option>
@@ -25,11 +41,11 @@
       </div>
       <div class="mb-3">
         <label class="form-label">Titulo</label>
-        <input class="form-control" name="titulo" required>
+        <input class="form-control" name="titulo" id="titulo" required>
       </div>
       <div class="mb-3">
         <label class="form-label">Descripcion</label>
-        <textarea class="form-control" name="descripcion" required></textarea>
+        <textarea class="form-control" name="descripcion" id="descripcion" required></textarea>
       </div>
       <div class="mb-3">
         <label class="form-label">Documentacion adjunta</label>
@@ -40,5 +56,24 @@
     </form>
   </div>
 </div>
-{% endblock %}
+<script>
+  const materiaSelect = document.getElementById("banco_materia_id");
+  const tipoSelect = document.getElementById("tipo");
+  const docenteSelect = document.getElementById("docente_id");
+  const tituloInput = document.getElementById("titulo");
+  const descripcionInput = document.getElementById("descripcion");
 
+  materiaSelect.addEventListener("change", () => {
+    const option = materiaSelect.selectedOptions[0];
+    if (!option || !option.value) {
+      return;
+    }
+    tipoSelect.value = "Materia";
+    tituloInput.value = option.dataset.nombre || "";
+    descripcionInput.value = option.dataset.descripcion || "";
+    if (option.dataset.docenteId) {
+      docenteSelect.value = option.dataset.docenteId;
+    }
+  });
+</script>
+{% endblock %}

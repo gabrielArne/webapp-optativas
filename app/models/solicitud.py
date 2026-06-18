@@ -13,6 +13,7 @@ class Solicitud(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     alumno_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"), nullable=False)
     docente_id: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"), nullable=True)
+    banco_materia_id: Mapped[int | None] = mapped_column(ForeignKey("banco_materias.id"), nullable=True)
     tipo: Mapped[str] = mapped_column(String(30), default=TipoSolicitud.MATERIA.value, nullable=False)
     titulo: Mapped[str] = mapped_column(String(200), nullable=False)
     descripcion: Mapped[str] = mapped_column(Text, nullable=False)
@@ -25,6 +26,7 @@ class Solicitud(Base):
 
     alumno = relationship("Usuario", foreign_keys=[alumno_id], back_populates="solicitudes_alumno")
     docente = relationship("Usuario", foreign_keys=[docente_id], back_populates="solicitudes_docente")
+    materia_banco = relationship("BancoMateria")
     feedbacks = relationship("Feedback", back_populates="solicitud", cascade="all, delete-orphan")
     adjuntos = relationship("Adjunto", back_populates="solicitud", cascade="all, delete-orphan")
     historial = relationship("HistorialEstado", back_populates="solicitud", cascade="all, delete-orphan")
@@ -76,4 +78,3 @@ class HistorialEstado(Base):
 
     solicitud = relationship("Solicitud", back_populates="historial")
     usuario = relationship("Usuario")
-

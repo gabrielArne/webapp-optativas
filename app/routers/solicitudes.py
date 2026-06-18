@@ -10,7 +10,8 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import flash, require_roles, require_user
 from app.core.config import settings
 from app.database.session import get_db
-from app.models.enums import EstadoSolicitud, RolUsuario, TipoSolicitud
+from app.models.banco import BancoMateria
+from app.models.enums import EstadoBancoMateria, EstadoSolicitud, RolUsuario, TipoSolicitud
 from app.models.solicitud import Adjunto, Feedback, HistorialEstado, Solicitud
 from app.models.user import Usuario
 from app.services.notifications import notify
@@ -102,12 +103,19 @@ def new_solicitud_form(
     db: Session = Depends(get_db),
 ):
     docentes = db.query(Usuario).filter(Usuario.rol == RolUsuario.DOCENTE.value, Usuario.activo.is_(True)).all()
+    materias_banco = (
+        db.query(BancoMateria)
+        .filter(BancoMateria.estado == EstadoBancoMateria.APROBADA.value)
+        .order_by(BancoMateria.nombre)
+        .all()
+    )
     return templates.TemplateResponse(
         "solicitudes/form.html",
         page_context(
             request,
             current_user=current_user,
             docentes=docentes,
+            materias_banco=materias_banco,
             tipos=[tipo.value for tipo in TipoSolicitud],
         ),
     )
@@ -116,22 +124,54 @@ def new_solicitud_form(
 @router.post("")
 def create_solicitud(
     request: Request,
-    tipo: str = Form(...),
-    titulo: str = Form(...),
-    descripcion: str = Form(...),
+    tipo: str = Form(TipoSolicitud.MATERIA.value),
+    titulo: str = Form(""),
+    descripcion: str = Form(""),
     docente_id: str = Form(""),
+    banco_materia_id: str = Form(""),
     files: list[UploadFile] | None = File(None),
     current_user: Usuario = Depends(require_roles(RolUsuario.ALUMNO.value)),
     db: Session = Depends(get_db),
 ):
-    docente_id_value = int(docente_id) if docente_id else None
+    materia_banco = None
+    if banco_materia_id:
+        try:
+            materia_banco = db.get(BancoMateria, int(banco_materia_id))
+        except ValueError:
+            materia_banco = None
+        if not materia_banco or materia_banco.estado != EstadoBancoMateria.APROBADA.value:
+            flash(request, "La materia seleccionada no esta disponible.", "danger")
+            return RedirectResponse("/solicitudes/nueva", status_code=303)
+
+    if materia_banco:
+        docente_id_value = materia_banco.docente_id
+        titulo_limpio = materia_banco.nombre
+        descripcion_limpia = (
+            f"Solicitud de materia del banco.\n"
+            f"Carrera: {materia_banco.carrera}\n"
+            f"Universidad: {materia_banco.universidad}\n\n"
+            f"{materia_banco.descripcion}"
+        )
+        tipo_value = TipoSolicitud.MATERIA.value
+        estado_value = EstadoSolicitud.APROBADA.value
+    else:
+        docente_id_value = int(docente_id) if docente_id else None
+        titulo_limpio = titulo.strip()
+        descripcion_limpia = descripcion.strip()
+        tipo_value = tipo
+        estado_value = EstadoSolicitud.ENVIADA.value
+        if not titulo_limpio or not descripcion_limpia:
+            flash(request, "Titulo y descripcion son obligatorios.", "danger")
+            return RedirectResponse("/solicitudes/nueva", status_code=303)
+
     solicitud = Solicitud(
         alumno_id=current_user.id,
         docente_id=docente_id_value,
-        tipo=tipo,
-        titulo=titulo.strip(),
-        descripcion=descripcion.strip(),
-        estado=EstadoSolicitud.ENVIADA.value,
+        banco_materia_id=materia_banco.id if materia_banco else None,
+        tipo=tipo_value,
+        titulo=titulo_limpio,
+        descripcion=descripcion_limpia,
+        estado=estado_value,
     )
     db.add(solicitud)
     db.flush()
@@ -144,9 +184,16 @@ def create_solicitud(
         )
     )
     save_uploads(db, solicitud, files)
-    notify(db, docente_id_value, f"Nueva solicitud de {current_user.nombre} {current_user.apellido}: {titulo}")
+    if materia_banco:
+        notify(
+            db,
+            docente_id_value,
+            f"Solicitud aprobada automaticamente para la materia del banco: {materia_banco.nombre}",
+        )
+    else:
+        notify(db, docente_id_value, f"Nueva solicitud de {current_user.nombre} {current_user.apellido}: {titulo_limpio}")
     db.commit()
-    flash(request, "Solicitud enviada.")
+    flash(request, "Solicitud aprobada automaticamente." if materia_banco else "Solicitud enviada.")
     return RedirectResponse(f"/solicitudes/{solicitud.id}", status_code=303)
 
 
